@@ -4,6 +4,9 @@ import cPickle
 import os
 from sys import exit
 
+class BadUserError(Exception):
+    pass
+
 def main():
     print '''
     Personal Assistant
@@ -110,6 +113,33 @@ def addToDo():
             print 'Goodbye'
     except KeyError, e:
         print '\nError! Please enter the To-Do item you want to add.\n'
+        
+def deleteToDo():
+    if os.path.exists('todo.dat'):
+        try:
+            fname = open('todo.dat', 'rb')
+            data = cPickle.Unpickler(fname)
+            todo = data.load()
+            saveToDo(todo)
+        finally:    
+            fname.close()
+    else:
+        todo = {}
+
+    try:
+        print '\nYour current To-Do list is: \n'
+        for k, v in todo.iteritems():
+            print k
+        answer = raw_input('\nWhich To-Do item do you want to remove? ')
+        del todo[answer]
+        print '\nDeleted To-Do item: ', answer
+        print '\nYour current To-Do list is: \n' 
+        for k, v in todo.iteritems():
+            print k, v[0],v[1]
+        saveToDo(todo)
+    except KeyError, e:
+        print '\nError! Please enter the To-Do item to be removed.\n'
+        print 'Case and spaces are important.'
 
 def saveToDo(todo):
     fname = open('todo.dat', 'w')
